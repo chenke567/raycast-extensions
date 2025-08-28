@@ -5,6 +5,7 @@ import axios from "axios";
 
 type CommandPreferences = {
   primaryAction: "copy" | "paste";
+  PROMPTS_CSV: string;
 };
 
 type Data = {
@@ -22,7 +23,7 @@ export default function Command() {
       setIsLoading(true);
       try {
         const response = await axios.get(
-          "https://raw.githubusercontent.com/awesome-chatgpt-prompts/awesome-chatgpt-prompts-github/awesome-chatgpt-prompts/prompts.csv"
+          preferences.PROMPTS_CSV
         );
         parse(
           response.data,

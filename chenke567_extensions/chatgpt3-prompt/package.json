@@ -37,13 +37,21 @@
               "value": "copy"
             }
           ]
+        },
+        {
+          "name": "PROMPTS_CSV",
+          "type": "textfield",
+          "description": "The path to the CSV file containing the prompts.",
+          "required": true,
+          "title": "Prompts CSV File",
+          "default": "assets/prompts.csv"
         }
       ]
     }
   ],
   "dependencies": {
     "@raycast/api": "^1.47.3",
-    "axios": "^1.8.4",
+
     "csv-parse": "^5.3.5"
   },
   "devDependencies": {

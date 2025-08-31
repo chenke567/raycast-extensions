@@ -1,7 +1,8 @@
-import { ActionPanel, Detail, List, Action, getPreferenceValues, Icon } from "@raycast/api";
+import { ActionPanel, Detail, List, Action, getPreferenceValues, Icon, environment } from "@raycast/api";
 import { parse } from "csv-parse";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import * as fs from "fs";
+import * as path from "path";
 
 type CommandPreferences = {
   primaryAction: "copy" | "paste";
@@ -19,27 +20,42 @@ export default function Command() {
   const preferences: CommandPreferences = getPreferenceValues();
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = () => {
       setIsLoading(true);
       try {
-        const response = await axios.get(
-          preferences.PROMPTS_CSV
-        );
-        parse(
-          response.data,
-          {
-            columns: true,
-            skipEmptyLines: true,
-            skipRecordsWithError: true,
-            skipRecordsWithEmptyValues: true,
-          },
-          (err, records) => {
-            setData(records);
-          }
-        );
+        let csvPath = preferences.PROMPTS_CSV;
+        if (!path.isAbsolute(csvPath)) {
+          csvPath = path.join(environment.assetsPath, csvPath);
+        }
+
+        if (csvPath && fs.existsSync(csvPath)) {
+          const fileContent = fs.readFileSync(csvPath, "utf8");
+          parse(
+            fileContent,
+            {
+              columns: true,
+              skipEmptyLines: true,
+              skipRecordsWithError: true,
+              skipRecordsWithEmptyValues: true,
+            },
+            (err, records) => {
+              if (err) {
+                console.error("Error parsing CSV:", err);
+                setData([]);
+              } else {
+                setData(records);
+              }
+              setIsLoading(false);
+            }
+          );
+        } else {
+          console.error(`File not found at ${csvPath}`);
+          setData([]);
+          setIsLoading(false);
+        }
       } catch (error) {
-        console.error(error);
-      } finally {
+        console.error("Error reading file:", error);
+        setData([]);
         setIsLoading(false);
       }
     };
